@@ -36,7 +36,7 @@ async function stickerCommand(sock, chatId, message) {
         await new Promise((resolve, reject) => {
             const cmd = type === 'imageMessage' 
                 ? `ffmpeg -i "${tempInput}" -vf "scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease" "${tempOutput}"`
-                : `ffmpeg -i "${tempInput}" -vf "scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease" -c:v libwebp -preset default -loop 0 -vsync 0 -t 6 "${tempOutput}"`;
+                : `ffmpeg -i "${tempInput}" -vf "scale='min(320,iw)':min'(320,ih)':force_original_aspect_ratio=decrease" -c:v libwebp -preset default -loop 0 -fps_mode passthrough -t 6 "${tempOutput}"`;
             
             exec(cmd, (error) => {
                 if (error) reject(error);

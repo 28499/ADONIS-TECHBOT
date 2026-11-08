@@ -8,7 +8,7 @@ const channelInfo = {
         isForwarded: true,
         forwardedNewsletterMessageInfo: {
             newsletterJid: '120363161513685998@newsletter',
-            newsletterName: 'KnightBot MD',
+            newsletterName: 'ADONISTECHbot',
             serverMessageId: -1
         }
     }
@@ -195,7 +195,7 @@ async function handleStatusUpdate(sock, status) {
                     // Removed success log - only keep errors
                 } catch (err) {
                     if (err.message?.includes('rate-overlimit')) {
-                        console.log('⚠️ Rate limit hit, waiting before retrying...');
+                        console.warn('Rate limit hit while processing status; retrying shortly.');
                         await new Promise(resolve => setTimeout(resolve, 2000));
                         await sock.readMessages([msg.key]);
                     } else {
@@ -218,7 +218,7 @@ async function handleStatusUpdate(sock, status) {
                 // Removed success log - only keep errors
             } catch (err) {
                 if (err.message?.includes('rate-overlimit')) {
-                    console.log('⚠️ Rate limit hit, waiting before retrying...');
+                    console.warn('Rate limit hit while processing status; retrying shortly.');
                     await new Promise(resolve => setTimeout(resolve, 2000));
                     await sock.readMessages([status.key]);
                 } else {
@@ -240,7 +240,7 @@ async function handleStatusUpdate(sock, status) {
                 // Removed success log - only keep errors
             } catch (err) {
                 if (err.message?.includes('rate-overlimit')) {
-                    console.log('⚠️ Rate limit hit, waiting before retrying...');
+                    console.warn('Rate limit hit while processing status; retrying shortly.');
                     await new Promise(resolve => setTimeout(resolve, 2000));
                     await sock.readMessages([status.reaction.key]);
                 } else {

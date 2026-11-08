@@ -34,7 +34,7 @@ const compliments = [
 async function complimentCommand(sock, chatId, message) {
     try {
         if (!message || !chatId) {
-            console.log('Invalid message or chatId:', { message, chatId });
+            console.warn('Skipping invalid message handler input.');
             return;
         }
 

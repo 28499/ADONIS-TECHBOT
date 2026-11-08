@@ -1,19 +1,14 @@
 {
-  "name": "knightbot",
+  "name": "adonistechbot",
   "version": "1.0.0",
-  "description": "WhatsApp Bot",
+  "description": "ADONISTECHbot WhatsApp bot",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "start:optimized": "node --max-old-space-size=512 --optimize-for-size --gc-interval=100 index.js",
-    "cleanup": "node cleanup.js",
-    "reset-session": "node reset-session.js",
-    "start:clean": "npm run cleanup && npm run start:optimized",
-    "start:fresh": "npm run reset-session && npm start",
     "install:panel": "npm install --legacy-peer-deps",
     "install:force": "npm install --force",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "docker:build": "docker build -t docker run -e SESSION_ID=$SESSION_ID knightbot"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "whatsapp-bot"
@@ -68,14 +63,15 @@
     "yargs": "^17.6.0",
     "yargs-parser": "^21.1.1",
     "youtube-yts": "^2.0.0",
-    "youtubedl-core": "^4.11.7",
-    "yt-search": "^2.12.1",
-    "ytdl-core": "^4.11.5"
+    "yt-search": "^2.12.1"
   },
   "overrides": {
     "jimp": "^1.6.0"
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "allowScripts": {
+    "sharp@0.32.6": true
   }
 }

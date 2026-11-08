@@ -1,6 +1,7 @@
 // 🧹 Fix for ENOSPC / temp overflow in hosted panels
 const fs = require('fs');
 const path = require('path');
+const terminalLogger = require('./lib/terminalLogger');
 
 // Redirect temp storage away from system /tmp
 const customTemp = path.join(process.cwd(), 'temp');
@@ -22,7 +23,7 @@ setInterval(() => {
             });
         }
     });
-    console.log('🧹 Temp folder auto-cleaned');
+    if (process.env.BOT_DEBUG === 'true') console.log('🧹 Temp folder auto-cleaned');
 }, 3 * 60 * 60 * 1000);
 
 const settings = require('./settings');
@@ -31,7 +32,6 @@ const { isBanned } = require('./lib/isBanned');
 const yts = require('yt-search');
 const { fetchBuffer } = require('./lib/myfunc');
 const fetch = require('node-fetch');
-const ytdl = require('ytdl-core');
 const axios = require('axios');
 const ffmpeg = require('fluent-ffmpeg');
 const { isSudo } = require('./lib/index');
@@ -156,13 +156,15 @@ const channelInfo = {
         isForwarded: true,
         forwardedNewsletterMessageInfo: {
             newsletterJid: '120363161513685998@newsletter',
-            newsletterName: 'KnightBot MD',
+            newsletterName: 'ADONISTECHbot',
             serverMessageId: -1
         }
     }
 };
 
 async function handleMessages(sock, messageUpdate, printLog) {
+    let loggedCommand = null;
+    let commandStatusLogged = false;
     try {
         const { messages, type } = messageUpdate;
         if (type !== 'notify') return;
@@ -228,9 +230,9 @@ async function handleMessages(sock, messageUpdate, printLog) {
             message.message?.videoMessage?.caption?.trim() ||
             '';
 
-        // Only log command usage
         if (userMessage.startsWith('.')) {
-            console.log(`📝 Command used in ${isGroup ? 'group' : 'private'}: ${userMessage}`);
+            loggedCommand = userMessage.split(/\s+/)[0];
+            terminalLogger.commandStarted(message, loggedCommand, isGroup ? 'Group' : 'Private');
         }
         // Read bot mode once; don't early-return so moderation can still run in private mode
         let isPublic = true;
@@ -244,6 +246,10 @@ async function handleMessages(sock, messageUpdate, printLog) {
         const isOwnerOrSudoCheck = message.key.fromMe || senderIsOwnerOrSudo;
         // Check if user is banned (skip ban check for unban command)
         if (isBanned(senderId) && !userMessage.startsWith('.unban')) {
+            if (loggedCommand) {
+                terminalLogger.commandBlocked(loggedCommand);
+                commandStatusLogged = true;
+            }
             // Only respond occasionally to avoid spam
             if (Math.random() < 0.1) {
                 await sock.sendMessage(chatId, {
@@ -314,6 +320,8 @@ async function handleMessages(sock, messageUpdate, printLog) {
         }
         // In private mode, only owner/sudo can run commands
         if (!isPublic && !isOwnerOrSudoCheck) {
+            terminalLogger.commandBlocked(loggedCommand);
+            commandStatusLogged = true;
             return;
         }
 
@@ -336,6 +344,8 @@ async function handleMessages(sock, messageUpdate, printLog) {
 
             if (!isBotAdmin) {
                 await sock.sendMessage(chatId, { text: 'Please make the bot an admin to use admin commands.', ...channelInfo }, { quoted: message });
+                terminalLogger.commandBlocked(loggedCommand);
+                commandStatusLogged = true;
                 return;
             }
 
@@ -352,6 +362,8 @@ async function handleMessages(sock, messageUpdate, printLog) {
                         text: 'Sorry, only group admins can use this command.',
                         ...channelInfo
                     }, { quoted: message });
+                    terminalLogger.commandBlocked(loggedCommand);
+                    commandStatusLogged = true;
                     return;
                 }
             }
@@ -361,6 +373,8 @@ async function handleMessages(sock, messageUpdate, printLog) {
         if (isOwnerCommand) {
             if (!message.key.fromMe && !senderIsOwnerOrSudo) {
                 await sock.sendMessage(chatId, { text: '❌ This command is only available for the owner or sudo!' }, { quoted: message });
+                terminalLogger.commandBlocked(loggedCommand);
+                commandStatusLogged = true;
                 return;
             }
         }
@@ -368,6 +382,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
         // Command handlers - Execute commands immediately without waiting for typing indicator
         // We'll show typing indicator after command execution if needed
         let commandExecuted = false;
+        let unknownCommand = false;
 
         switch (true) {
             case userMessage === '.simage': {
@@ -1173,7 +1188,16 @@ async function handleMessages(sock, messageUpdate, printLog) {
                     await handleMentionDetection(sock, chatId, message);
                 }
                 commandExecuted = false;
+                unknownCommand = true;
                 break;
+        }
+
+        if (unknownCommand) {
+            terminalLogger.commandUnknown(loggedCommand);
+            commandStatusLogged = true;
+        } else if (loggedCommand) {
+            terminalLogger.commandSucceeded(loggedCommand);
+            commandStatusLogged = true;
         }
 
         // If a command was executed, show typing status after command execution
@@ -1204,6 +1228,10 @@ async function handleMessages(sock, messageUpdate, printLog) {
             await addCommandReaction(sock, message);
         }
     } catch (error) {
+        if (loggedCommand && !commandStatusLogged) {
+            terminalLogger.commandFailed(loggedCommand);
+            commandStatusLogged = true;
+        }
         console.error('❌ Error in message handler:', error.message);
         // Only try to send error message if we have a valid chatId
         if (chatId) {

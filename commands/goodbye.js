@@ -51,7 +51,7 @@ async function handleLeaveEvent(sock, id, participants) {
                     }
                 }
             } catch (nameError) {
-                console.log('Could not fetch display name, using phone number');
+                console.warn('Could not fetch display name, using phone number');
             }
             
             // Process custom message with variables
@@ -75,7 +75,7 @@ async function handleLeaveEvent(sock, id, participants) {
                         profilePicUrl = profilePic;
                     }
                 } catch (profileError) {
-                    console.log('Could not fetch profile picture, using default');
+                    console.warn('Could not fetch profile picture, using default');
                 }
                 
                 // Construct API URL for goodbye image
@@ -95,7 +95,7 @@ async function handleLeaveEvent(sock, id, participants) {
                     continue; // Skip to next participant
                 }
             } catch (imageError) {
-                console.log('Image generation failed, falling back to text');
+                console.warn('Image generation failed, falling back to text');
             }
             
             // Send text message (either custom message or fallback)

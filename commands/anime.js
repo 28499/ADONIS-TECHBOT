@@ -31,8 +31,8 @@ async function sendAnimu(sock, chatId, message, type) {
         fs.writeFileSync(input, mediaBuffer);
 
         const ffmpegCmd = isAnimated 
-            ? `ffmpeg -y -i "${input}" -vf "scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=#00000000,fps=15" -c:v libwebp -preset default -loop 0 -vsync 0 -pix_fmt yuva420p -quality 60 -compression_level 6 "${output}"`
-            : `ffmpeg -y -i "${input}" -vf "scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=#00000000" -c:v libwebp -preset default -loop 0 -vsync 0 -pix_fmt yuva420p -quality 75 -compression_level 6 "${output}"`;
+            ? `ffmpeg -y -i "${input}" -vf "scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=#00000000,fps=15" -c:v libwebp -preset default -loop 0 -fps_mode passthrough -pix_fmt yuva420p -quality 60 -compression_level 6 "${output}"`
+            : `ffmpeg -y -i "${input}" -vf "scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=#00000000" -c:v libwebp -preset default -loop 0 -fps_mode passthrough -pix_fmt yuva420p -quality 75 -compression_level 6 "${output}"`;
 
         await new Promise((resolve, reject) => {
             exec(ffmpegCmd, (err) => (err ? reject(err) : resolve()));

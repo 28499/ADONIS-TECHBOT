@@ -97,7 +97,7 @@ async function handleChatbotCommand(sock, chatId, message, match) {
             }
             data.chatbot[chatId] = true;
             saveUserGroupData(data);
-            console.log(`✅ Chatbot enabled for group ${chatId}`);
+            if (process.env.BOT_DEBUG === 'true') console.log(`✅ Chatbot enabled for group ${chatId}`);
             return sock.sendMessage(chatId, { 
                 text: '*Chatbot has been enabled for this group*',
                 quoted: message
@@ -114,7 +114,7 @@ async function handleChatbotCommand(sock, chatId, message, match) {
             }
             delete data.chatbot[chatId];
             saveUserGroupData(data);
-            console.log(`✅ Chatbot disabled for group ${chatId}`);
+            if (process.env.BOT_DEBUG === 'true') console.log(`✅ Chatbot disabled for group ${chatId}`);
             return sock.sendMessage(chatId, { 
                 text: '*Chatbot has been disabled for this group*',
                 quoted: message
@@ -151,7 +151,7 @@ async function handleChatbotCommand(sock, chatId, message, match) {
         }
         data.chatbot[chatId] = true;
         saveUserGroupData(data);
-        console.log(`✅ Chatbot enabled for group ${chatId}`);
+        if (process.env.BOT_DEBUG === 'true') console.log(`✅ Chatbot enabled for group ${chatId}`);
         return sock.sendMessage(chatId, { 
             text: '*Chatbot has been enabled for this group*',
             quoted: message
@@ -168,7 +168,7 @@ async function handleChatbotCommand(sock, chatId, message, match) {
         }
         delete data.chatbot[chatId];
         saveUserGroupData(data);
-        console.log(`✅ Chatbot disabled for group ${chatId}`);
+        if (process.env.BOT_DEBUG === 'true') console.log(`✅ Chatbot disabled for group ${chatId}`);
         return sock.sendMessage(chatId, { 
             text: '*Chatbot has been disabled for this group*',
             quoted: message
@@ -344,7 +344,7 @@ EMOTIONAL RESPONSES:
 - If they flirt: Flirt back naturally
 
 ABOUT YOU:
-- Your name is Knight Bot
+- Your name is ADONISTECHbot
 - You're the boss
 - You're not an AI or assistant
 - You're a real person chatting

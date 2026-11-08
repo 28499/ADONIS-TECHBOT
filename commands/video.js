@@ -128,7 +128,7 @@ async function videoCommand(sock, chatId, message) {
                 const videoUrl_check = videoData.download || videoData.dl || videoData.url;
                 
                 if (!videoUrl_check) {
-                    console.log(`${apiMethod.name} returned no download URL, trying next API...`);
+                    console.warn(`${apiMethod.name} returned no download URL, trying next API...`);
                     continue; // Try next API
                 }
                 
@@ -136,7 +136,7 @@ async function videoCommand(sock, chatId, message) {
                 break; // Success! Exit the loop
             } catch (apiErr) {
                 // API call failed, try next API
-                console.log(`${apiMethod.name} API failed:`, apiErr.message);
+                console.warn(`${apiMethod.name} API failed:`, apiErr.message);
                 continue;
             }
         }
@@ -151,7 +151,7 @@ async function videoCommand(sock, chatId, message) {
             video: { url: videoData.download || videoData.dl || videoData.url },
             mimetype: 'video/mp4',
             fileName: `${(videoData.title || videoTitle || 'video').replace(/[^\w\s-]/g, '')}.mp4`,
-            caption: `*${videoData.title || videoTitle || 'Video'}*\n\n> *_Downloaded by Knight Bot MD_*`
+            caption: `*${videoData.title || videoTitle || 'Video'}*\n\n> *_Downloaded by ADONISTECHbot MD_*`
         }, { quoted: message });
 
 

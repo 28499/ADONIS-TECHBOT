@@ -37,7 +37,7 @@ async function stickercropCommand(sock, chatId, message) {
                 isForwarded: true,
                 forwardedNewsletterMessageInfo: {
                     newsletterJid: '120363161513685998@newsletter',
-                    newsletterName: 'KnightBot MD',
+                    newsletterName: 'ADONISTECHbot',
                     serverMessageId: -1
                 }
             }
@@ -59,7 +59,7 @@ async function stickercropCommand(sock, chatId, message) {
                     isForwarded: true,
                     forwardedNewsletterMessageInfo: {
                         newsletterJid: '120363161513685998@newsletter',
-                        newsletterName: 'KnightBot MD',
+                        newsletterName: 'ADONISTECHbot',
                         serverMessageId: -1
                     }
                 }
@@ -97,14 +97,14 @@ async function stickercropCommand(sock, chatId, message) {
         if (isAnimated) {
             if (isLargeFile) {
                 // Large video: very aggressive compression, max 2 seconds, very low quality
-                ffmpegCommand = `ffmpeg -i "${tempInput}" -t 2 -vf "crop=min(iw\\,ih):min(iw\\,ih),scale=512:512,fps=8" -c:v libwebp -preset default -loop 0 -vsync 0 -pix_fmt yuva420p -quality 30 -compression_level 6 -b:v 100k -max_muxing_queue_size 1024 "${tempOutput}"`;
+                ffmpegCommand = `ffmpeg -i "${tempInput}" -t 2 -vf "crop=min(iw\\,ih):min(iw\\,ih),scale=512:512,fps=8" -c:v libwebp -preset default -loop 0 -fps_mode passthrough -pix_fmt yuva420p -quality 30 -compression_level 6 -b:v 100k -max_muxing_queue_size 1024 "${tempOutput}"`;
             } else {
                 // Normal video: aggressive compression, max 3 seconds, lower quality
-                ffmpegCommand = `ffmpeg -i "${tempInput}" -t 3 -vf "crop=min(iw\\,ih):min(iw\\,ih),scale=512:512,fps=12" -c:v libwebp -preset default -loop 0 -vsync 0 -pix_fmt yuva420p -quality 50 -compression_level 6 -b:v 150k -max_muxing_queue_size 1024 "${tempOutput}"`;
+                ffmpegCommand = `ffmpeg -i "${tempInput}" -t 3 -vf "crop=min(iw\\,ih):min(iw\\,ih),scale=512:512,fps=12" -c:v libwebp -preset default -loop 0 -fps_mode passthrough -pix_fmt yuva420p -quality 50 -compression_level 6 -b:v 150k -max_muxing_queue_size 1024 "${tempOutput}"`;
             }
         } else {
             // Image: standard compression
-            ffmpegCommand = `ffmpeg -i "${tempInput}" -vf "crop=min(iw\\,ih):min(iw\\,ih),scale=512:512,format=rgba" -c:v libwebp -preset default -loop 0 -vsync 0 -pix_fmt yuva420p -quality 75 -compression_level 6 "${tempOutput}"`;
+            ffmpegCommand = `ffmpeg -i "${tempInput}" -vf "crop=min(iw\\,ih):min(iw\\,ih),scale=512:512,format=rgba" -c:v libwebp -preset default -loop 0 -fps_mode passthrough -pix_fmt yuva420p -quality 75 -compression_level 6 "${tempOutput}"`;
         }
 
         await new Promise((resolve, reject) => {
@@ -114,7 +114,7 @@ async function stickercropCommand(sock, chatId, message) {
                     console.error('FFmpeg stderr:', stderr);
                     reject(error);
                 } else {
-                    console.log('FFmpeg stdout:', stdout);
+                    if (process.env.BOT_DEBUG === 'true') console.log('FFmpeg stdout:', stdout);
                     resolve();
                 }
             });
@@ -135,11 +135,11 @@ async function stickercropCommand(sock, chatId, message) {
         
         // Check final file size
         const finalSizeKB = webpBuffer.length / 1024;
-        console.log(`Final sticker size: ${Math.round(finalSizeKB)} KB`);
+        if (process.env.BOT_DEBUG === 'true') console.log(`Final sticker size: ${Math.round(finalSizeKB)} KB`);
         
         // If still too large, we'll send it anyway but log a warning
         if (finalSizeKB > 1000) { // 1MB limit for WhatsApp stickers
-            console.log(`⚠️ Warning: Sticker size (${Math.round(finalSizeKB)} KB) exceeds recommended limit but will be sent anyway`);
+            console.warn(`Sticker size (${Math.round(finalSizeKB)} KB) exceeds the recommended limit and will still be sent.`);
         }
 
         // Add metadata using webpmux
@@ -149,7 +149,7 @@ async function stickercropCommand(sock, chatId, message) {
         // Create metadata
         const json = {
             'sticker-pack-id': crypto.randomBytes(32).toString('hex'),
-            'sticker-pack-name': settings.packname || 'KnightBot',
+            'sticker-pack-name': settings.packname || 'ADONISTECHbot',
             'emojis': ['✂️']
         };
 
@@ -187,7 +187,7 @@ async function stickercropCommand(sock, chatId, message) {
                 isForwarded: true,
                 forwardedNewsletterMessageInfo: {
                     newsletterJid: '120363161513685998@newsletter',
-                    newsletterName: 'KnightBot MD',
+                    newsletterName: 'ADONISTECHbot',
                     serverMessageId: -1
                 }
             }
@@ -214,12 +214,12 @@ async function stickercropFromBuffer(inputBuffer, isAnimated) {
     let ffmpegCommand;
     if (isAnimated) {
         if (isLargeFile) {
-            ffmpegCommand = `ffmpeg -y -i "${tempInput}" -t 2 -vf "crop=min(iw\\,ih):min(iw\\,ih),scale=512:512,fps=8" -c:v libwebp -preset default -loop 0 -vsync 0 -pix_fmt yuva420p -quality 30 -compression_level 6 -b:v 100k -max_muxing_queue_size 1024 "${tempOutput}"`;
+            ffmpegCommand = `ffmpeg -y -i "${tempInput}" -t 2 -vf "crop=min(iw\\,ih):min(iw\\,ih),scale=512:512,fps=8" -c:v libwebp -preset default -loop 0 -fps_mode passthrough -pix_fmt yuva420p -quality 30 -compression_level 6 -b:v 100k -max_muxing_queue_size 1024 "${tempOutput}"`;
         } else {
-            ffmpegCommand = `ffmpeg -y -i "${tempInput}" -t 3 -vf "crop=min(iw\\,ih):min(iw\\,ih),scale=512:512,fps=12" -c:v libwebp -preset default -loop 0 -vsync 0 -pix_fmt yuva420p -quality 50 -compression_level 6 -b:v 150k -max_muxing_queue_size 1024 "${tempOutput}"`;
+            ffmpegCommand = `ffmpeg -y -i "${tempInput}" -t 3 -vf "crop=min(iw\\,ih):min(iw\\,ih),scale=512:512,fps=12" -c:v libwebp -preset default -loop 0 -fps_mode passthrough -pix_fmt yuva420p -quality 50 -compression_level 6 -b:v 150k -max_muxing_queue_size 1024 "${tempOutput}"`;
         }
     } else {
-        ffmpegCommand = `ffmpeg -y -i "${tempInput}" -vf "crop=min(iw\\,ih):min(iw\\,ih),scale=512:512,format=rgba" -c:v libwebp -preset default -loop 0 -vsync 0 -pix_fmt yuva420p -quality 75 -compression_level 6 "${tempOutput}"`;
+        ffmpegCommand = `ffmpeg -y -i "${tempInput}" -vf "crop=min(iw\\,ih):min(iw\\,ih),scale=512:512,format=rgba" -c:v libwebp -preset default -loop 0 -fps_mode passthrough -pix_fmt yuva420p -quality 75 -compression_level 6 "${tempOutput}"`;
     }
 
     await new Promise((resolve, reject) => {
@@ -235,7 +235,7 @@ async function stickercropFromBuffer(inputBuffer, isAnimated) {
     await img.load(webpBuffer);
     const json = {
         'sticker-pack-id': crypto.randomBytes(32).toString('hex'),
-        'sticker-pack-name': settings.packname || 'KnightBot',
+        'sticker-pack-name': settings.packname || 'ADONISTECHbot',
         'emojis': ['✂️']
     };
     const exifAttr = Buffer.from([0x49, 0x49, 0x2A, 0x00, 0x08, 0x00, 0x00, 0x00, 0x01, 0x00, 0x41, 0x57, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00]);
